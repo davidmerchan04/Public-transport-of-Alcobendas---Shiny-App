@@ -12,7 +12,9 @@ library(httr)
 library(rlist)
 library(jsonlite)
 library(dplyr)
-
+library(tidyverse)
+library(shinyjs)
+library(magrittr)
 
 ###### The data is get from datos.gob.es
 ### We get de API dato using de JSON format
@@ -39,8 +41,8 @@ jsonRespParsed
 
 names(data)
 
-names(data)[1]="Linea"
-names(data)[2]="Año"
+names(data)[1]="Line"
+names(data)[2]="Year"
 names(data)[4]="Número.anual.de.pasajeros"
 names(data)[5]="Expediciones.por.dia.laborable"
 names(data)[6]="Viajeros.por.dia"
@@ -48,6 +50,32 @@ names(data)[7]="Viajeros.por.expedicion"
 names(data)[8]="Kilometros.anuales.realizados" 
 
 data$Tipo.de.transporte=gsub("Ãº","u",data$Tipo.de.transporte)
+
+###################################################################
+
+###################################################################
+
+########
+##App 
+
+data %<>% mutate_at(c("Line", "Year"), as.factor)
+
+data_line = levels(data$Line)
+data_year = levels(data$Year)
+
+headrow = div(id="header", useShinyjs(),
+              selectInput("selecline", 
+                          label="Select the bus line", 
+                          multiple = TRUE,
+                          choices=data_line,
+                          selected=head(data_line,3)),
+              selectInput("selecyear", 
+                          label="Select the year", 
+                          multiple = TRUE,
+                          choices=data_year,
+                          selected=head(data_year,2)) 
+              )
+
 
 dataPanel = tabPanel("Data",tableOutput("dataTable"),downloadButton("report", "Generate report"))
 
@@ -70,14 +98,24 @@ histPanel = tabPanel("Histograms",
 
 
 # Define UI for application that draws a histogram
-ui <- navbarPage("Shiny App", dataPanel, histPanel)
+ui <- navbarPage("Shiny App", dataPanel, histPanel, id="navBar", header=headrow)
 
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
     
+    
+    data_filtered <- reactive({
+        req(input$selecline)
+        req(input$selecyear)
+        data %>% filter(Year %in% input$selecyear, 
+                             Line %in% input$selecline)
+    })
+    
+    
+    
     output$dataTable = renderTable({
-        head(data)
+        data_filtered()
     })
     
     output$distPlot <- renderPlot({

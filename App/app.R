@@ -63,7 +63,18 @@ data %<>% mutate_at(c("Line", "Year"), as.factor)
 
 data_line = levels(data$Line)
 data_year = levels(data$Year)
-data_variable = colnames(data[4:8])
+
+data$Número.anual.de.pasajeros=as.numeric(data$Número.anual.de.pasajeros)
+data$Expediciones.por.dia.laborable=as.numeric(data$Expediciones.por.dia.laborable)
+data$Viajeros.por.dia=as.numeric(data$Viajeros.por.dia)
+data$Kilometros.anuales.realizados=as.numeric(data$Kilometros.anuales.realizados)
+
+
+data2=data[4:8]
+str(data2)
+
+
+
 
 headrow = div(id="header", useShinyjs(),
               selectInput("selecline", 
@@ -80,11 +91,11 @@ headrow = div(id="header", useShinyjs(),
 
 
 headrow2 = div(id="header2", useShinyjs(),
-              selectInput("selecvariable", 
-                          label="Select the variable", 
-                          multiple = TRUE,
-                          choices=data_variable,
-                          selected=head(data_variable,1)) 
+              selectInput("var1", 
+                          label="Select the variable:", 
+                          multiple = FALSE,
+                          choices=c("Número.anual.de.pasajeros"=1,"Viajeros.por.dia"=2, "Expediciones.por.dia.laborable"=3,"Viajeros.por.expedicion"=4,"Kilometros.anuales.realizados"=5),
+                          selected=1),
               )
 
 
@@ -157,16 +168,21 @@ server <- function(input, output) {
         data_filtered()
     })
     
+###############
+## Histogram
+###############        
     output$distPlot <- renderPlot({
+        colm= as.numeric(input$var1)
         # generate bins based on input$bins from ui.R
-        Viajeros.por.dia    <- faithful[, 2]
-        bins <- seq(min(Viajeros.por.dia), max(Viajeros.por.dia), length.out = input$bins + 1)
-        
+        #Viajeros.por.dia    <- faithful[, 2]
+        bins <- seq(0, max(data2[,colm]), length.out = input$bins + 1)
         # draw the histogram with the specified number of bins
-        hist(Viajeros.por.dia, breaks = bins, col = 'darkgray', border = 'white')
+        hist(data2[,colm], breaks = bins, col = 'darkgray', border = 'white', xlab = names(data2[colm]), main="Histrogram")
     })
     
-    
+#################
+## Correlation plot
+#################        
     output$plot1 <- renderPlot({
         ggplot(data, aes(Número.anual.de.pasajeros, Kilometros.anuales.realizados)) + geom_point()
     })

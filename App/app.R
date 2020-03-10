@@ -29,8 +29,9 @@ jsonRespText
 
 jsonRespParsed<-content(resp,as="parsed") 
 
-url=jsonRespParsed$result$items[[1]]$distribution[[4]]$accessURL
+url1=jsonRespParsed$result$items[[1]]$distribution[[5]]$accessURL
 
+url="https://datos.alcobendas.org/dataset/9cc894a1-8cfb-4dfe-a29f-fb197aa03ae0/resource/eff1bb9c-110e-4962-8370-d78589f987c2/download/uso-de-autobuses.csv"
 ######
 
 data=read.csv(url)
@@ -62,6 +63,7 @@ data %<>% mutate_at(c("Line", "Year"), as.factor)
 
 data_line = levels(data$Line)
 data_year = levels(data$Year)
+data_variable = colnames(data[4:8])
 
 headrow = div(id="header", useShinyjs(),
               selectInput("selecline", 
@@ -77,10 +79,22 @@ headrow = div(id="header", useShinyjs(),
               )
 
 
-dataPanel = tabPanel("Data",tableOutput("dataTable"),downloadButton("report", "Generate report"))
+headrow2 = div(id="header2", useShinyjs(),
+              selectInput("selecvariable", 
+                          label="Select the variable", 
+                          multiple = TRUE,
+                          choices=data_variable,
+                          selected=head(data_variable,1)) 
+              )
+
+
+
+dataPanel = tabPanel("Data", fluidPage(headrow), 
+                     tableOutput("dataTable"),
+                     downloadButton("report", "Generate report"))
 
 histPanel = tabPanel("Histograms",
-                     fluidPage( 
+                     fluidPage(headrow2, 
                          sidebarLayout(
                              sidebarPanel(
                                  sliderInput("bins",
@@ -92,13 +106,38 @@ histPanel = tabPanel("Histograms",
                              mainPanel(
                                  plotOutput("distPlot")
                              ) # mainPanel
-                         ) # sidebarLayout
+                        ) # sidebarLayout
                      ) # fluidPage
 )
 
 
+Coorpanel = tabPanel("Corr", fluidPage(
+    fluidRow(
+        column(width = 4,
+               plotOutput("plot1", height = 300,
+                          # Equivalent to: click = clickOpts(id = "plot_click")
+                          click = "plot1_click",
+                          brush = brushOpts(
+                              id = "plot1_brush"
+                          )
+               )
+        )
+    ),
+    fluidRow(
+        column(width = 6,
+               h4("Points near click"),
+               verbatimTextOutput("click_info")
+        ),
+        column(width = 6,
+               h4("Brushed points"),
+               verbatimTextOutput("brush_info")
+        )
+    )
+))
+
+
 # Define UI for application that draws a histogram
-ui <- navbarPage("Shiny App", dataPanel, histPanel, id="navBar", header=headrow)
+ui <- navbarPage("Shiny App", dataPanel, histPanel,Coorpanel)
 
 
 # Define server logic required to draw a histogram
@@ -125,6 +164,21 @@ server <- function(input, output) {
         
         # draw the histogram with the specified number of bins
         hist(Viajeros.por.dia, breaks = bins, col = 'darkgray', border = 'white')
+    })
+    
+    
+    output$plot1 <- renderPlot({
+        ggplot(data, aes(Número.anual.de.pasajeros, Kilometros.anuales.realizados)) + geom_point()
+    })
+    
+    output$click_info <- renderPrint({
+        # Because it's a ggplot2, we don't need to supply xvar or yvar; if this
+        # were a base graphics plot, we'd need those.
+        nearPoints(data, input$plot1_click, addDist = TRUE)
+    })
+    
+    output$brush_info <- renderPrint({
+        brushedPoints(data, input$plot1_brush)
     })
     
 }

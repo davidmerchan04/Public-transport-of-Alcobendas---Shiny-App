@@ -1,37 +1,17 @@
-## Welcome to GitHub Pages
+# Public transport of Alcobendas - Shiny App
 
-You can use the [editor on GitHub](https://github.com/davidmerchan04/ShinyAppProject/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+This app contains information about transport of Alcobendas, this information was collect by Ayuntamiento de Alcobendas. In this app we will different statistical plots that let you to infer how was the behavior of the public transport in Alcobendas between 2015 and 2017. 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+In the next section you can find the functionalities of the app: 
 
-### Markdown
+## Data
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+In the first panel you can see the data from the bus line and the year that you selected previously. Also, in this panel you can generate a  PDF report that will show you a histogram plotted with the information that you selected. 
 
-```markdown
-Syntax highlighted code block
+### Histogram 
 
-# Header 1
-## Header 2
-### Header 3
+In this panel you have the option to manipulate a histogram selecting the variables that you want to plot and magnitude of the bins. This can of manipulation let you to understand the data distribution of each variable.
 
-- Bulleted
-- List
+### Correlation graph 
 
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/davidmerchan04/ShinyAppProject/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+The correlation graph is used to observe the relation between to variables. The new option that you can found in this plot is that if you click in a point the information of this line will appear in the 

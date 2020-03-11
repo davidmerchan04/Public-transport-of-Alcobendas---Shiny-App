@@ -287,7 +287,7 @@ output$plot = renderPlot({
                  fill = data[,3],
                  group = data[,3]
                  )
-             ) + labs(x=names(data[,4:8][,colm1]), fill=data[,3], y="") + plot.type
+             ) + labs(x=colnames(data[,4:8][,colm1]), fill="Type of bus", y="") + plot.type
 })
 
 

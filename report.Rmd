@@ -4,14 +4,52 @@ author: "David Merchán Cano"
 date: "11/3/2020"
 output: pdf_document
 params: 
-  selecline: ["1","151","152c"]
+  selecline: ["1","2","3","5","6","9","C10","C11","151","152C", "153","154","154C", "155",  "155B", "156",  "157",  "157C", "158", "159", "161","171","180","827","827A","828","N101","N102"]
   selecyear: ["2015","2016","2017"]
+  
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(tidyr)
+library(tidyverse)
+library(dplyr)
+library(magrittr)
+
+url="https://datos.alcobendas.org/dataset/9cc894a1-8cfb-4dfe-a29f-fb197aa03ae0/resource/eff1bb9c-110e-4962-8370-d78589f987c2/download/uso-de-autobuses.csv"
+
+data=read.csv(url)
+
+names(data)[1]="Line"
+names(data)[2]="Year"
+names(data)[4]="Numero.anual.de.pasajeros"
+names(data)[5]="Expediciones.por.dia.laborable"
+names(data)[6]="Viajeros.por.dia"
+names(data)[7]="Viajeros.por.expedicion"
+names(data)[8]="Kilometros.anuales.realizados" 
+
+data$Tipo.de.transporte=gsub("Ãº","u",data$Tipo.de.transporte)
+
+data_2 <- data %>% 
+    mutate_at(c("Line", "Year"), as.factor) %>%
+    filter(Line %in% params$selecline, Year %in% params$selecyear)
+
 ```
 
-## R Markdown
 
-Hola
+# Lines
+
+The lines of the data set are: 
+
+```{r, echo=FALSE}
+params$selecline
+```
+
+
+# Plots
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(data_2, aes(Numero.anual.de.pasajeros)) + geom_histogram()
+```
+

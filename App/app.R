@@ -309,7 +309,7 @@ output$report <- downloadHandler(
         # Set up parameters to pass to Rmd document
         params <- list(
             selecline = isolate(input$selecline),
-            selecyear = isolate(input$selecyear),
+            selecyear = isolate(input$selecyear)
                    )
         
         # Knit the document, passing in the `params` list, and eval it in a

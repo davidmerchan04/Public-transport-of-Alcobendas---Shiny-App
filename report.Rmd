@@ -38,13 +38,24 @@ data_2 <- data %>%
 ```
 
 
+In this report you can see a histogram which graphs the variables (`Line` and `Years`) that you select in the app
+
 # Lines
 
-The lines of the data set are: 
+The lines selected are: 
 
 ```{r, echo=FALSE}
 params$selecline
 ```
+
+# Years
+
+The years selected are: 
+
+```{r, echo=FALSE}
+params$selecyear
+```
+
 
 
 # Plots

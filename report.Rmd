@@ -1,5 +1,5 @@
 ---
-title: "report"
+title: "App report"
 author: "David Merchán Cano"
 date: "11/3/2020"
 output: pdf_document

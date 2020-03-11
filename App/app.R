@@ -59,10 +59,11 @@ data$Tipo.de.transporte=gsub("Ãº","u",data$Tipo.de.transporte)
 ########
 ##App 
 
-data %<>% mutate_at(c("Line", "Year"), as.factor)
+data %<>% mutate_at(c("Line", "Year","Tipo.de.transporte"), as.factor)
 
 data_line = levels(data$Line)
 data_year = levels(data$Year)
+data_type = levels(data$Tipo.de.transporte)
 
 data$Número.anual.de.pasajeros=as.numeric(data$Número.anual.de.pasajeros)
 data$Expediciones.por.dia.laborable=as.numeric(data$Expediciones.por.dia.laborable)
@@ -74,7 +75,23 @@ data2=data[4:8]
 str(data2)
 
 
+namev = function(vec){
+       tmp=as.list(vec)
+       names(tmp)=as.character(unlist(vec))
+       tmp
+}
 
+
+# "boxplot"=geom_boxplot()
+# "density"= geom_density(alpha=.75)
+# "bar"=geom_bar(position="dodge")
+
+
+#######################################
+
+####################
+# Line and year headrow
+###################
 
 headrow = div(id="header", useShinyjs(),
               selectInput("selecline", 
@@ -89,20 +106,37 @@ headrow = div(id="header", useShinyjs(),
                           selected=head(data_year,2)) 
               )
 
-
+###################
+# Variable headrow 
+###################
 headrow2 = div(id="header2", useShinyjs(),
               selectInput("var1", 
                           label="Select the variable:", 
                           multiple = FALSE,
-                          choices=c("Número.anual.de.pasajeros"=1,"Viajeros.por.dia"=2, "Expediciones.por.dia.laborable"=3,"Viajeros.por.expedicion"=4,"Kilometros.anuales.realizados"=5),
+                          choices=c("Número.anual.de.pasajeros"=1,"Viajeros.por.dia"=3, "Expediciones.por.dia.laborable"=2,"Viajeros.por.expedicion"=4,"Kilometros.anuales.realizados"=5),
                           selected=1),
               )
 
 
+headrow3 = div(id="header3", useShinyjs(),
+               selectInput("var2", 
+                           label="Select the variable:", 
+                           multiple = FALSE,
+                           choices=c("Número.anual.de.pasajeros"=1,"Viajeros.por.dia"=3, "Expediciones.por.dia.laborable"=2,"Viajeros.por.expedicion"=4,"Kilometros.anuales.realizados"=5),
+                           selected=3),
+)
+
+####################
+### FIRST PANEL  ###
+####################
 
 dataPanel = tabPanel("Data", fluidPage(headrow), 
                      tableOutput("dataTable"),
                      downloadButton("report", "Generate report"))
+
+####################
+### HISTOGRAM PANEL#
+####################
 
 histPanel = tabPanel("Histograms",
                      fluidPage(headrow2, 
@@ -121,11 +155,14 @@ histPanel = tabPanel("Histograms",
                      ) # fluidPage
 )
 
+####################
+# CORRELATION PLOT #
+####################
 
-Coorpanel = tabPanel("Corr", fluidPage(
+Coorpanel = tabPanel("Correlation graph", fluidPage(
     fluidRow(
-        column(width = 4,
-               plotOutput("plot1", height = 300,
+        column(width = 7,
+               plotOutput("plot1", height = 400,
                           # Equivalent to: click = clickOpts(id = "plot_click")
                           click = "plot1_click",
                           brush = brushOpts(
@@ -146,9 +183,26 @@ Coorpanel = tabPanel("Corr", fluidPage(
     )
 ))
 
+##############
+# PLOTS (DENSITY and BAR)
+##############
+
+Plots=tabPanel("Other plots",
+               pageWithSidebar( 
+               headerPanel("Select Options"),
+               sidebarPanel(headrow3,
+               selectInput("plot.type", "Plot Type:",
+                                              c(Density="density", Barchart="Barchart")
+                           )),
+               mainPanel(
+                   h3(textOutput("caption")),
+                   plotOutput("plot")
+               )
+               ))
+
 
 # Define UI for application that draws a histogram
-ui <- navbarPage("Shiny App", dataPanel, histPanel,Coorpanel)
+ui <- navbarPage("Shiny App", dataPanel, histPanel,Coorpanel,Plots)
 
 
 # Define server logic required to draw a histogram
@@ -175,9 +229,9 @@ server <- function(input, output) {
         colm= as.numeric(input$var1)
         # generate bins based on input$bins from ui.R
         #Viajeros.por.dia    <- faithful[, 2]
-        bins <- seq(0, max(data2[,colm]), length.out = input$bins + 1)
+        bins <- seq(0, max(data[,4:8][,colm]), length.out = input$bins + 1)
         # draw the histogram with the specified number of bins
-        hist(data2[,colm], breaks = bins, col = 'darkgray', border = 'white', xlab = names(data2[colm]), main="Histrogram")
+        hist(data[,4:8][,colm], breaks = bins, col = 'darkgray', border = 'white', xlab = names(data[,4:8][colm]), main="Histrogram")
     })
     
 #################
@@ -196,8 +250,50 @@ server <- function(input, output) {
     output$brush_info <- renderPrint({
         brushedPoints(data, input$plot1_brush)
     })
+
+##############
+## plots
+##############
+
+ 
+output$var1=renderUI({
+     input$var1
+     })
+
+# output$group= renderUI({
+#     selectInput("group","Groups:", data_type)
+# })
     
+output$caption=renderText({
+    switch(input$plot.type,
+           "density" 	=	"Density plot",
+           "Barchart" 		=	"Bar chart")
+})
+
+# output$plot = renderUI({
+#     input$var1
+#     plotOutput("p")
+# })
+
+output$plot = renderPlot({
+    plot.type=switch(input$plot.type,
+                     "density"  = geom_density(alpha=.75),
+                     "Barchart"  = geom_bar(position=position_dodge2(preserve = "total"))
+                     )
+    colm1= as.numeric(input$var2) 
+    ggplot(data,
+             aes( 
+                 x = data[,4:8][,colm1],
+                 fill = data[,3],
+                 group = data[,3]
+                 )
+             ) + labs(x=names(data[,4:8][,colm1]), fill=data[,3], y="") + plot.type
+})
+
 }
+
+
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)

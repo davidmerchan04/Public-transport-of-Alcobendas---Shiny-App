@@ -44,7 +44,7 @@ names(data)
 
 names(data)[1]="Line"
 names(data)[2]="Year"
-names(data)[4]="Número.anual.de.pasajeros"
+names(data)[4]="Numero.anual.de.pasajeros"
 names(data)[5]="Expediciones.por.dia.laborable"
 names(data)[6]="Viajeros.por.dia"
 names(data)[7]="Viajeros.por.expedicion"
@@ -65,7 +65,7 @@ data_line = levels(data$Line)
 data_year = levels(data$Year)
 data_type = levels(data$Tipo.de.transporte)
 
-data$Número.anual.de.pasajeros=as.numeric(data$Número.anual.de.pasajeros)
+data$Numero.anual.de.pasajeros=as.numeric(data$Numero.anual.de.pasajeros)
 data$Expediciones.por.dia.laborable=as.numeric(data$Expediciones.por.dia.laborable)
 data$Viajeros.por.dia=as.numeric(data$Viajeros.por.dia)
 data$Kilometros.anuales.realizados=as.numeric(data$Kilometros.anuales.realizados)
@@ -113,7 +113,7 @@ headrow2 = div(id="header2", useShinyjs(),
               selectInput("var1", 
                           label="Select the variable:", 
                           multiple = FALSE,
-                          choices=c("Número.anual.de.pasajeros"=1,"Viajeros.por.dia"=3, "Expediciones.por.dia.laborable"=2,"Viajeros.por.expedicion"=4,"Kilometros.anuales.realizados"=5),
+                          choices=c("Numero.anual.de.pasajeros"=1,"Viajeros.por.dia"=3, "Expediciones.por.dia.laborable"=2,"Viajeros.por.expedicion"=4,"Kilometros.anuales.realizados"=5),
                           selected=1),
               )
 
@@ -122,7 +122,7 @@ headrow3 = div(id="header3", useShinyjs(),
                selectInput("var2", 
                            label="Select the variable:", 
                            multiple = FALSE,
-                           choices=c("Número.anual.de.pasajeros"=1,"Viajeros.por.dia"=3, "Expediciones.por.dia.laborable"=2,"Viajeros.por.expedicion"=4,"Kilometros.anuales.realizados"=5),
+                           choices=c("Numero.anual.de.pasajeros"=1,"Viajeros.por.dia"=3, "Expediciones.por.dia.laborable"=2,"Viajeros.por.expedicion"=4,"Kilometros.anuales.realizados"=5),
                            selected=3),
 )
 
@@ -238,7 +238,7 @@ server <- function(input, output) {
 ## Correlation plot
 #################        
     output$plot1 <- renderPlot({
-        ggplot(data, aes(Número.anual.de.pasajeros, Kilometros.anuales.realizados)) + geom_point()
+        ggplot(data, aes(Numero.anual.de.pasajeros, Kilometros.anuales.realizados)) + geom_point()
     })
     
     output$click_info <- renderPrint({
@@ -309,8 +309,8 @@ output$report <- downloadHandler(
         # Set up parameters to pass to Rmd document
         params <- list(
             selecline = isolate(input$selecline),
-            selecyear = isolate(input$selecyear)
-        )
+            selecyear = isolate(input$selecyear),
+                   )
         
         # Knit the document, passing in the `params` list, and eval it in a
         # child of the global environment (this isolates the code in the document

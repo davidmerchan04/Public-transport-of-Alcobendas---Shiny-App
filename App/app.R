@@ -103,7 +103,7 @@ headrow = div(id="header", useShinyjs(),
                           label="Select the year", 
                           multiple = TRUE,
                           choices=data_year,
-                          selected=head(data_year,2)) 
+                          selected=head(data_year,2))
               )
 
 ###################
@@ -289,6 +289,42 @@ output$plot = renderPlot({
                  )
              ) + labs(x=names(data[,4:8][,colm1]), fill=data[,3], y="") + plot.type
 })
+
+
+
+####################
+## Generate report #
+####################
+
+output$report <- downloadHandler(
+    # For PDF output, change this to "report.pdf"
+    filename = "report.pdf",
+    content = function(file) {
+        # Copy the report file to a temporary directory before processing it, in
+        # case we don't have write permissions to the current working dir (which
+        # can happen when deployed).
+        tempReport <- file.path(tempdir(), "report.Rmd")
+        file.copy("report.Rmd", tempReport, overwrite = TRUE)
+        
+        # Set up parameters to pass to Rmd document
+        params <- list(
+            selecline = isolate(input$selecline),
+            selecyear = isolate(input$selecyear)
+        )
+        
+        # Knit the document, passing in the `params` list, and eval it in a
+        # child of the global environment (this isolates the code in the document
+        # from the code in this app).
+        rmarkdown::render(tempReport, output_file = file,
+                          params = params,
+                          envir = new.env(parent = globalenv())
+        )
+    }
+)
+
+
+
+
 
 }
 

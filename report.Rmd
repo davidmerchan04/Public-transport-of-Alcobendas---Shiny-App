@@ -1,0 +1,17 @@
+---
+title: "report"
+author: "David Merchán Cano"
+date: "11/3/2020"
+output: pdf_document
+params: 
+  selecline: ["1","151","152c"]
+  selecyear: ["2015","2016","2017"]
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Hola
